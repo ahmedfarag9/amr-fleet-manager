@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: AMR Fleet API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      responses:
+        '200':
+          description: ok
+  /runs:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mode:
+                  type: string
+                seed:
+                  type: integer
+                scale:
+                  type: string
+                robots:
+                  type: integer
+                jobs:
+                  type: integer
+      responses:
+        '201':
+          description: created
+  /runs/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: run
+  /runs/{id}/metrics:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: metrics
+  /runs/compare:
+    get:
+      parameters:
+        - name: seed
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: scale
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: robots
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: jobs
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: compare

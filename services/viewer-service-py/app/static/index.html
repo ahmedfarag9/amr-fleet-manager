@@ -1,0 +1,73 @@
+<!doctype html>
+<!--
+  File: services/viewer-service-py/app/static/index.html
+  Purpose: Dashboard layout for the AMR Fleet Manager demo UI.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AMR Fleet Manager Demo</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="controls card">
+        <h1>AMR Fleet Manager</h1>
+        <p class="sub">Deterministic fleet simulation (baseline vs GA)</p>
+        <div class="row">
+          <span>Scale:</span>
+          <strong id="scale-value">-</strong>
+        </div>
+        <div class="row">
+          <span>Seed:</span>
+          <strong id="seed-value">-</strong>
+        </div>
+        <div class="row">
+          <span>GA Replan Interval:</span>
+          <strong id="replan-value">-</strong>
+        </div>
+        <div class="row input-row">
+          <label for="robots-input">Robots:</label>
+          <input id="robots-input" type="number" min="1" step="1" />
+        </div>
+        <div class="row input-row">
+          <label for="jobs-input">Jobs:</label>
+          <input id="jobs-input" type="number" min="1" step="1" />
+        </div>
+        <div class="buttons">
+          <button id="run-baseline">Run Baseline</button>
+          <button id="run-ga">Run GA</button>
+          <button id="compare">Compare Last Two</button>
+        </div>
+        <div class="row">
+          <span>Active Run:</span>
+          <code id="run-id">none</code>
+        </div>
+      </section>
+
+      <section class="viz card">
+        <canvas id="fleet-canvas" width="900" height="560"></canvas>
+      </section>
+
+      <section class="metrics card">
+        <h2>Run Metrics</h2>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Value</th></tr>
+          </thead>
+          <tbody id="metrics-body"></tbody>
+        </table>
+
+        <h2>Baseline vs GA</h2>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Baseline</th><th>GA</th></tr>
+          </thead>
+          <tbody id="compare-body"></tbody>
+        </table>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

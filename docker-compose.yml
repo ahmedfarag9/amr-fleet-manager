@@ -1,0 +1,134 @@
+services:
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - amr-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - amr-net
+
+  fleet-api:
+    build:
+      context: ./services/fleet-api-go
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - amr-net
+
+  optimizer-service:
+    build:
+      context: ./services/optimizer-service-py
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8002:8002"
+    networks:
+      - amr-net
+
+  dispatcher-worker:
+    build:
+      context: ./services/dispatcher-worker-py
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      optimizer-service:
+        condition: service_started
+    networks:
+      - amr-net
+
+  sim-runner:
+    build:
+      context: ./services/sim-runner-py
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - amr-net
+
+  viewer-service:
+    build:
+      context: ./services/viewer-service-py
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      fleet-api:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    networks:
+      - amr-net
+
+  ros2-robot-agents:
+    build:
+      context: ./ros2/robot_agents
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - amr-net
+
+  adminer:
+    image: adminer:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    networks:
+      - amr-net
+
+networks:
+  amr-net:
+    driver: bridge
+
+volumes:
+  mysql-data:

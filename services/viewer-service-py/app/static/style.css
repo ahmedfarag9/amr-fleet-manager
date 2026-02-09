@@ -1,0 +1,117 @@
+/* File: services/viewer-service-py/app/static/style.css
+   Purpose: Styling for the AMR Fleet Manager dashboard. */
+:root {
+  --bg: #f2efe8;
+  --card: #fff9ef;
+  --ink: #1f2a30;
+  --accent: #0f7f6b;
+  --warn: #a53824;
+  --grid: #d8cdb8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top right, #f7e7c6, var(--bg));
+}
+
+.layout {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 320px 1fr 360px;
+}
+
+.card {
+  background: var(--card);
+  border: 2px solid #d9c9ab;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(26, 35, 38, 0.08);
+}
+
+.controls h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.sub {
+  margin-top: 4px;
+  color: #4f5e5a;
+}
+
+.row {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.input-row input {
+  width: 110px;
+  border: 1px solid #d6c7ab;
+  border-radius: 6px;
+  padding: 4px 6px;
+  background: #fffef9;
+}
+
+.buttons {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(0.95);
+}
+
+.viz {
+  min-height: 560px;
+}
+
+#fleet-canvas {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--grid);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fbf6eb 0%, #f5e8cf 100%);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e4d8c2;
+  padding: 6px;
+  text-align: left;
+}
+
+.metrics h2 {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
