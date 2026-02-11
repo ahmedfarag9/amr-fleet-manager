@@ -1,4 +1,4 @@
-# AMR Fleet Manager (Devonics-style Demo)
+# AMR Fleet Manager
 
 Deterministic (not random/stochastic - same result for same i/p), dockerized AMR (Autonomous Mobile Robot) fleet simulation monorepo with two dispatch modes on the same scenario:
 
@@ -29,7 +29,7 @@ docker compose up --build
 - `FLEET_SEED=42`
 - `FLEET_SCALE=demo`
 - `FLEET_MODE=baseline`
-- `GA_REPLAN_INTERVAL_S=0` (periodic GA replanning OFF by default for demo reliability)
+- `GA_REPLAN_INTERVAL_S=0` (periodic GA replanning OFF by default for operational reliability)
 
 Enable periodic GA replanning by setting `GA_REPLAN_INTERVAL_S>0`.
 
@@ -95,7 +95,7 @@ Consumer policy for malformed `robot.updated`:
 - `docs/OPTIMIZER.md`
 - `docs/DB_SCHEMA.md`
 - `docs/RUNBOOK.md`
-- `docs/DEMO.md`
+- `docs/ros-commands.md`
 
 ## Helpful Commands
 

@@ -37,7 +37,7 @@ def compute_baseline_assignments(
         and float(r.get("battery", 0.0)) >= battery_threshold
     ]
     if not idle_robots and pending_jobs:
-        # Demo-safe fallback: avoid stalling when all idle robots are below the threshold.
+        # Safety fallback: avoid stalling when all idle robots are below the threshold.
         idle_robots = [
             r
             for r in robots.values()

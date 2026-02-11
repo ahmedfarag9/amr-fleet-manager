@@ -29,12 +29,12 @@ Per assigned job penalty combines:
 - Tournament selection (stable tie-break)
 - One-point crossover
 - Point mutation
-- Elitism
+- Elitism (a strategy that directly copies the best individual(s) from the current generation to the next without alteration)
 
 ## Replanning Policy
 
 - Initial optimize at run start in GA mode.
-- Periodic replanning default is disabled for demo reliability:
+- Periodic replanning default is disabled for operational reliability:
   - `.env.example` sets `GA_REPLAN_INTERVAL_S=0`.
 - Enable periodic replanning by setting `GA_REPLAN_INTERVAL_S>0`; cadence uses `sim_time_s`.
 - Idle-gap replan only when:
