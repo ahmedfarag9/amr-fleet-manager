@@ -7,6 +7,9 @@ Deterministic (not random/stochastic - same result for same i/p), dockerized AMR
 
 The stack is fully local and event-driven using RabbitMQ as the only bus.
 
+## References / Research Inspiration
+A. Meseguer Valenzuela, F. Blanes Noguera — “Task Allocation in Mobile Robot Fleets: A review” (arXiv:2501.08726, 2025). [https://arxiv.org/pdf/2501.08726]
+
 ## To-Do / Future Work
 - Implement collision avoidance
 - Battery-aware operations (auto charge scheduling, charging station contention)
