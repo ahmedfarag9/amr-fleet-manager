@@ -7,6 +7,12 @@ Deterministic (not random/stochastic - same result for same i/p), dockerized AMR
 
 The stack is fully local and event-driven using RabbitMQ as the only bus.
 
+## To-Do / Future Work
+- Implement collision avoidance
+- Battery-aware operations (auto charge scheduling, charging station contention)
+- Implement additional optimization/planning algorithms (Ant Colony Optimization, Neural Networks, Reinforcement Learning) and benchmark them vs Baseline + GA.
+- Real-world ROS2 integration with physical mobile robots (Nav2 goal dispatch, localization/TF, safety controller, live telemetry + feedback loop).
+
 ## Quickstart
 
 1. Copy env file:
@@ -139,3 +145,23 @@ make demo-ga
 - Battery/charging: `BATTERY_THRESHOLD`, `CHARGE_RATE`, `CHARGE_RESUME_THRESHOLD`
 
 For the full list, see `docs/CONFIG.md`.
+
+## Database Schema (ERD)
+
+<img width="1217" height="948" alt="Screenshot from 2026-02-11 23-33-46" src="https://github.com/user-attachments/assets/7e3ff700-cdef-420e-a7d4-1367985ece1d" />
+
+
+## Run Execution Flow (Sequence Diagram)
+
+<img width="1898" height="788" alt="Screenshot from 2026-02-11 23-33-07" src="https://github.com/user-attachments/assets/5c0045e5-be34-416b-b568-9519c056f84e" />
+
+
+## System Architecture Overview (Services + Messaging)
+
+<img width="1773" height="789" alt="Screenshot from 2026-02-11 23-32-41" src="https://github.com/user-attachments/assets/a85ddcb8-00f1-4868-ba60-eed05a10eb64" />
+
+
+## Suggested AWS Deployment Architecture
+
+<img width="1609" height="898" alt="Screenshot from 2026-02-11 23-31-20" src="https://github.com/user-attachments/assets/e9bf71d0-5809-400e-8001-540bae79f34d" />
+
