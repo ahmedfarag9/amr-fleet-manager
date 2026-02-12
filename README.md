@@ -10,6 +10,9 @@ The stack is fully local and event-driven using RabbitMQ as the only bus.
 ## References / Research Inspiration
 A. Meseguer Valenzuela, F. Blanes Noguera — “Task Allocation in Mobile Robot Fleets: A review” (arXiv:2501.08726, 2025). [https://arxiv.org/pdf/2501.08726]
 
+## Run metrics/results
+<img width="1906" height="928" alt="Screenshot from 2026-02-12 02-11-42" src="https://github.com/user-attachments/assets/3531d2b8-1614-4414-ad22-c25e8e25f0bd" />
+
 ## To-Do / Future Work
 - Implement collision avoidance
 - Battery-aware operations (auto charge scheduling, charging station contention)
