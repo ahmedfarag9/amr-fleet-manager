@@ -11,7 +11,17 @@ The stack is fully local and event-driven using RabbitMQ as the only bus.
 A. Meseguer Valenzuela, F. Blanes Noguera — “Task Allocation in Mobile Robot Fleets: A review” (arXiv:2501.08726, 2025). [https://arxiv.org/pdf/2501.08726]
 
 ## Run metrics/results
-<img width="1906" height="928" alt="Screenshot from 2026-02-12 02-11-42" src="https://github.com/user-attachments/assets/3531d2b8-1614-4414-ad22-c25e8e25f0bd" />
+
+<img width="1903" height="930" alt="Screenshot from 2026-03-06 06-16-40" src="https://github.com/user-attachments/assets/fb7dbb25-0119-4632-b62c-584574621c51" />
+
+<img width="1903" height="1077" alt="Screenshot from 2026-03-06 06-16-58" src="https://github.com/user-attachments/assets/7d06027f-dcc2-4a77-ab26-2a2faa0fafe0" />
+
+<img width="1903" height="930" alt="Screenshot from 2026-03-06 06-17-15" src="https://github.com/user-attachments/assets/35bce882-e4c0-414c-80f0-59e1f94e2ca9" />
+
+<img width="1903" height="930" alt="Screenshot from 2026-03-06 06-17-20" src="https://github.com/user-attachments/assets/0524c595-fbe3-4021-8b64-28aa3c864da9" />
+
+<img width="1903" height="930" alt="Screenshot from 2026-03-06 06-17-23" src="https://github.com/user-attachments/assets/f1163742-56fb-47eb-a7b7-788c5d9d3184" />
+
 
 ## To-Do / Future Work
 - Implement collision avoidance
