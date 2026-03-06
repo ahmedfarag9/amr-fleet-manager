@@ -63,6 +63,7 @@ class MQConsumer:
                 run_id = str(payload.get("run_id", ""))
                 if run_id:
                     self.last_completed[run_id] = payload
+                await self.ws_manager.broadcast(payload)
         except Exception as exc:  # noqa: BLE001
             logger.exception("mq message handling error: %s", exc)
         finally:

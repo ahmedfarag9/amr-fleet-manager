@@ -36,6 +36,21 @@ docker compose up --build
 - Optimizer API: http://localhost:8002
 - Adminer (optional): http://localhost:8081
 
+## Live UI Editing (Inside Docker)
+
+`viewer-service` is configured with:
+- bind mount: `./services/viewer-service-py/app:/app/app`
+- `uvicorn --reload`
+
+So HTML/CSS/JS edits under `services/viewer-service-py/app/static` reflect live after browser refresh.
+
+If `viewer-service` was already running before this change, recreate it once:
+```bash
+docker compose up -d --build viewer-service
+```
+
+For CSS updates, use a hard refresh in browser (`Ctrl+Shift+R`) to bypass cache.
+
 ## Determinism Defaults
 
 - `FLEET_SEED=42`

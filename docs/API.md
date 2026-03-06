@@ -116,14 +116,33 @@ Returns default mode/seed/scale and the computed scale map.
 Proxy to `fleet-api-go POST /runs`.
 Supports optional run-scoped overrides: `robots`, `jobs`.
 
+### GET /api/runs/{id}
+Proxy to `fleet-api-go GET /runs/{id}` (run status metadata).
+
 ### GET /api/runs/{id}/metrics
 Proxy to `fleet-api-go GET /runs/{id}/metrics`.
+
+### GET /api/runs/recent?limit=25
+Returns recent `run.completed` events cached by viewer-service from RabbitMQ.
+Useful for rendering run history in the UI without querying DB directly.
 
 ### GET /api/runs/compare
 Proxy to `fleet-api-go GET /runs/compare`.
 
 ### WS /ws
-WebSocket stream of `snapshot.tick` events.
+WebSocket stream of live events consumed from RabbitMQ:
+- `snapshot.tick` for map/robot/job updates
+- `run.completed` for final status and metrics
+
+### Example: get run status via viewer proxy
+```bash
+curl -sS http://localhost:8080/api/runs/<RUN_ID> | jq
+```
+
+### Example: recent run history
+```bash
+curl -sS "http://localhost:8080/api/runs/recent?limit=10" | jq
+```
 
 ### Example: start a run via viewer
 ```bash

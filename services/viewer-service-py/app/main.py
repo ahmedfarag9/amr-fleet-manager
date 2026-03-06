@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """
 File: services/viewer-service-py/app/main.py
-Purpose: UI backend for the AMR Fleet Manager demo.
+Purpose: UI backend for the AMR Fleet Manager.
 Key responsibilities:
 - Serve static HTML/JS/CSS dashboard.
 - Proxy API calls to fleet-api.
@@ -40,6 +40,29 @@ STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
+async def _proxy_json(
+    method: str,
+    path: str,
+    *,
+    params: dict[str, Any] | None = None,
+    payload: dict[str, Any] | None = None,
+) -> JSONResponse:
+    """Proxy a JSON API request to fleet-api with stable error handling."""
+    url = f"{settings.fleet_api_url}{path}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.request(method=method, url=url, params=params, json=payload)
+    except httpx.HTTPError as exc:
+        logger.warning("proxy request failed method=%s path=%s err=%s", method, path, exc)
+        return JSONResponse(status_code=502, content={"error": "fleet-api unavailable"})
+
+    try:
+        body = response.json()
+    except ValueError:
+        body = {"error": response.text or "fleet-api returned non-JSON response"}
+    return JSONResponse(status_code=response.status_code, content=body)
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """Start the background RabbitMQ consumer on service startup."""
@@ -75,17 +98,18 @@ async def config() -> dict[str, Any]:
 @app.post("/api/runs")
 async def create_run(payload: dict[str, Any]) -> JSONResponse:
     """Proxy run creation to fleet-api."""
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.post(f"{settings.fleet_api_url}/runs", json=payload)
-    return JSONResponse(status_code=resp.status_code, content=resp.json())
+    return await _proxy_json("POST", "/runs", payload=payload)
 
 
-@app.get("/api/runs/{run_id}/metrics")
-async def run_metrics(run_id: str) -> JSONResponse:
-    """Proxy metrics request to fleet-api."""
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(f"{settings.fleet_api_url}/runs/{run_id}/metrics")
-    return JSONResponse(status_code=resp.status_code, content=resp.json())
+@app.get("/api/runs/recent")
+async def recent_runs(limit: int = Query(default=10, ge=1, le=100)) -> dict[str, Any]:
+    """Return recent run.completed events seen by viewer-service."""
+    items = sorted(
+        mq_consumer.last_completed.values(),
+        key=lambda row: str(row.get("ts_utc", "")),
+        reverse=True,
+    )
+    return {"items": items[:limit]}
 
 
 @app.get("/api/runs/compare")
@@ -103,17 +127,24 @@ async def compare_runs(
         params["robots"] = robots
     if jobs is not None:
         params["jobs"] = jobs
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(
-            f"{settings.fleet_api_url}/runs/compare",
-            params=params,
-        )
-    return JSONResponse(status_code=resp.status_code, content=resp.json())
+    return await _proxy_json("GET", "/runs/compare", params=params)
+
+
+@app.get("/api/runs/{run_id}")
+async def get_run(run_id: str) -> JSONResponse:
+    """Proxy run metadata request to fleet-api."""
+    return await _proxy_json("GET", f"/runs/{run_id}")
+
+
+@app.get("/api/runs/{run_id}/metrics")
+async def run_metrics(run_id: str) -> JSONResponse:
+    """Proxy metrics request to fleet-api."""
+    return await _proxy_json("GET", f"/runs/{run_id}/metrics")
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
-    """WebSocket endpoint for streaming snapshot.tick events."""
+    """WebSocket endpoint for streaming live RabbitMQ-derived events."""
     await ws_manager.connect(websocket)
     try:
         while True:
