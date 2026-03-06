@@ -78,13 +78,14 @@
           </div>
 
           <div class="dashboard-grid">
-            <section class="panel map-panel">
+            <section id="map-panel" class="panel map-panel">
               <header class="panel-head">
                 <div>
                   <h3>Live Facility Map</h3>
                   <p><span id="sim-time">Sim 0s</span> <span id="map-scale">Zoom 1.00x</span></p>
                 </div>
                 <div class="map-tools">
+                  <button id="toggle-fullscreen" class="ghost">Full Screen</button>
                   <button id="fit-world" class="ghost">Fit</button>
                   <button id="zoom-in" class="ghost">+</button>
                   <button id="zoom-out" class="ghost">-</button>
@@ -92,7 +93,6 @@
               </header>
 
               <div class="map-controls">
-                <label><input type="checkbox" id="toggle-zones" checked /> Zones</label>
                 <label><input type="checkbox" id="toggle-jobs" checked /> Jobs</label>
                 <label><input type="checkbox" id="toggle-assignments" checked /> Assignments</label>
                 <label><input type="checkbox" id="toggle-trails" checked /> Trails</label>

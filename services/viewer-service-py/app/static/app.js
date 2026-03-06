@@ -45,14 +45,15 @@ const dom = {
 
   simTime: document.getElementById("sim-time"),
   mapScale: document.getElementById("map-scale"),
+  mapPanel: document.getElementById("map-panel"),
 
-  toggleZones: document.getElementById("toggle-zones"),
   toggleJobs: document.getElementById("toggle-jobs"),
   toggleAssignments: document.getElementById("toggle-assignments"),
   toggleTrails: document.getElementById("toggle-trails"),
   toggleFollow: document.getElementById("toggle-follow"),
   followRobotSelect: document.getElementById("follow-robot-select"),
 
+  toggleFullscreenBtn: document.getElementById("toggle-fullscreen"),
   fitWorldBtn: document.getElementById("fit-world"),
   zoomInBtn: document.getElementById("zoom-in"),
   zoomOutBtn: document.getElementById("zoom-out"),
@@ -112,6 +113,7 @@ const appState = {
     width: 0,
     height: 0,
     baseScale: 1,
+    xStretch: 2,
     worldCenterX: 50,
     worldCenterY: 50,
     zoom: 1,
@@ -386,10 +388,11 @@ function updateTrackDynamics(track, nowMs) {
 
 function worldToScreen(x, y) {
   const map = appState.map;
-  const scale = map.baseScale * map.zoom;
+  const scaleX = map.baseScale * map.zoom * map.xStretch;
+  const scaleY = map.baseScale * map.zoom;
   return {
-    x: (x - map.worldCenterX) * scale + map.width / 2 + map.panX,
-    y: map.height / 2 - (y - map.worldCenterY) * scale + map.panY,
+    x: (x - map.worldCenterX) * scaleX + map.width / 2 + map.panX,
+    y: map.height / 2 - (y - map.worldCenterY) * scaleY + map.panY,
   };
 }
 
@@ -402,7 +405,13 @@ function resizeCanvas() {
 
   appState.map.width = rect.width;
   appState.map.height = rect.height;
-  appState.map.baseScale = Math.max(1, Math.min(rect.width, rect.height) / (appState.map.worldSize + 10));
+  appState.map.baseScale = Math.max(
+    0.25,
+    Math.min(
+      rect.width / ((appState.map.worldSize + 10) * appState.map.xStretch),
+      rect.height / (appState.map.worldSize + 10),
+    ),
+  );
 }
 
 function resetMapView() {
@@ -440,29 +449,6 @@ function drawGrid() {
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
-  }
-}
-
-function drawZones() {
-  const zones = [
-    { name: "Receiving", x: 4, y: 70, w: 25, h: 24, color: "rgba(56, 189, 248, 0.12)" },
-    { name: "Storage", x: 68, y: 62, w: 28, h: 30, color: "rgba(52, 211, 153, 0.12)" },
-    { name: "Charging", x: 70, y: 6, w: 24, h: 18, color: "rgba(127, 86, 217, 0.14)" },
-  ];
-
-  for (const zone of zones) {
-    const topLeft = worldToScreen(zone.x, zone.y + zone.h);
-    const bottomRight = worldToScreen(zone.x + zone.w, zone.y);
-    const width = bottomRight.x - topLeft.x;
-    const height = bottomRight.y - topLeft.y;
-
-    ctx.fillStyle = zone.color;
-    ctx.fillRect(topLeft.x, topLeft.y, width, height);
-    ctx.strokeStyle = "rgba(77, 90, 104, 0.5)";
-    ctx.strokeRect(topLeft.x, topLeft.y, width, height);
-    ctx.fillStyle = "rgba(31, 47, 62, 0.9)";
-    ctx.font = "11px Segoe UI";
-    ctx.fillText(zone.name, topLeft.x + 6, topLeft.y + 14);
   }
 }
 
@@ -641,9 +627,10 @@ function maybeFollowRobot() {
   }
 
   const pos = getInterpolatedPosition(track, performance.now());
-  const scale = appState.map.baseScale * appState.map.zoom;
-  const targetPanX = -((pos.x - appState.map.worldCenterX) * scale);
-  const targetPanY = (pos.y - appState.map.worldCenterY) * scale;
+  const scaleX = appState.map.baseScale * appState.map.zoom * appState.map.xStretch;
+  const scaleY = appState.map.baseScale * appState.map.zoom;
+  const targetPanX = -((pos.x - appState.map.worldCenterX) * scaleX);
+  const targetPanY = (pos.y - appState.map.worldCenterY) * scaleY;
 
   appState.map.panX = lerp(appState.map.panX, targetPanX, 0.08);
   appState.map.panY = lerp(appState.map.panY, targetPanY, 0.08);
@@ -658,9 +645,6 @@ function drawFrame(nowMs) {
   drawMapBackground();
 
   drawGrid();
-  if (dom.toggleZones.checked) {
-    drawZones();
-  }
   if (dom.toggleJobs.checked) {
     drawJobs();
   }
@@ -1154,6 +1138,29 @@ function updateDefaultsUI() {
   dom.defaultReplan.textContent = `${appState.config.defaults.ga_replan_interval_s}s`;
 }
 
+function updateFullscreenButton() {
+  if (!dom.toggleFullscreenBtn) {
+    return;
+  }
+  const active = document.fullscreenElement === dom.mapPanel;
+  dom.toggleFullscreenBtn.textContent = active ? "Exit Full Screen" : "Full Screen";
+}
+
+async function toggleMapFullscreen() {
+  if (!dom.mapPanel) {
+    return;
+  }
+  try {
+    if (document.fullscreenElement === dom.mapPanel) {
+      await document.exitFullscreen();
+      return;
+    }
+    await dom.mapPanel.requestFullscreen();
+  } catch {
+    addActivity("Fullscreen not available in this browser.", "warn");
+  }
+}
+
 function applyScalePreset(scaleKey) {
   if (!appState.config || !appState.config.scale_map) {
     return;
@@ -1192,6 +1199,16 @@ async function fetchConfig() {
 }
 
 function bindMapControls() {
+  if (dom.toggleFullscreenBtn) {
+    dom.toggleFullscreenBtn.addEventListener("click", () => {
+      void toggleMapFullscreen();
+    });
+    if (!document.fullscreenEnabled) {
+      dom.toggleFullscreenBtn.disabled = true;
+      dom.toggleFullscreenBtn.title = "Fullscreen is not supported in this browser";
+    }
+  }
+
   dom.fitWorldBtn.addEventListener("click", () => {
     resetMapView();
   });
@@ -1248,6 +1265,12 @@ function bindMapControls() {
       }
     }
   });
+
+  document.addEventListener("fullscreenchange", () => {
+    updateFullscreenButton();
+    resizeCanvas();
+  });
+  updateFullscreenButton();
 }
 
 function bindEvents() {
